@@ -446,5 +446,21 @@ document.querySelectorAll(".phase-tab").forEach(btn=>btn.addEventListener("click
 document.querySelectorAll(".week-tab").forEach(btn=>btn.addEventListener("click",()=>{weekIdx=+btn.dataset.week;openEx=-1;render();}));
 render();
 </script>
+  // 1. Al cargar la página, recuperamos lo guardado
+window.onload = function() {
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach((input, index) => {
+        const savedValue = localStorage.getItem('ejercicio_' + index);
+        if (savedValue) {
+            input.value = savedValue;
+        }
+        
+        // 2. Cada vez que escribas algo, se guarda al instante
+        input.addEventListener('input', () => {
+            localStorage.setItem('ejercicio_' + index, input.value);
+        });
+    });
+};
+</script>
 </body>
 </html>
