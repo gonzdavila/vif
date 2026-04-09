@@ -7,48 +7,56 @@
 <style>
   @import url('https://googleapis.com');
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  :root { --c: #e8ff47; }
   body{background:#0c0c0c;color:#f0f0f0;font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;padding-bottom:60px;min-height:100vh;}
   button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none;}
   .bebas{font-family:'Bebas Neue',sans-serif;}
   
-  /* HEADER & TABS */
+  /* DINAMIC COLORS BY PHASE */
+  .phase-1 { --c: #e8ff47; }
+  .phase-2 { --c: #00f2ff; }
+  .phase-3 { --c: #ff3e3e; }
+
   #header{background:#111;padding:18px 16px 12px;border-bottom:3px solid var(--c);}
   .phase-tabs{display:flex;gap:6px;margin-top:14px;}
   .phase-tab{flex:1;padding:8px 4px;border-radius:7px;font-size:10px;font-weight:700;background:#222;color:#777;}
   .phase-tab.active{background:var(--c);color:#000;}
   
-  /* ADMIN & PROGRESS */
-  .admin-bar{display:flex;justify-content:space-between;padding:8px 16px;background:#111;font-size:10px;}
-  .btn-reset{color:#555;font-weight:700;background:none;}
-  #progress-bar-bg{height:4px;background:rgba(255,255,255,.05);width:100%;}
-  #progress-bar{height:100%;background:var(--c);transition:width .3s;width:0%;}
+  .week-tabs{display:flex;gap:5px;margin-top:8px;}
+  .week-tab{flex:1;padding:6px 0;border-radius:6px;font-size:11px;font-weight:600;background:transparent;color:#555;}
+  .week-tab.active{background:#333;color:#fff;}
 
-  /* EXERCISE CARDS */
-  #exercises{padding:15px;}
-  .ex-card{margin-bottom:12px;background:rgba(255,255,255,0.03);border-radius:12px;overflow:hidden;}
-  .ex-header{padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;}
-  .ex-img-mini{width:45px;height:45px;border-radius:6px;object-fit:cover;background:#1a1a1a;}
-  .ex-name{font-weight:700;font-size:14px;flex:1;}
-  
-  .ex-body{display:none;padding:0 12px 12px;border-top:1px solid rgba(255,255,255,0.05);}
+  #progress-bar-bg{height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin: 10px 16px;}
+  #progress-bar{height:100%;background:var(--c);border-radius:3px;transition:width .3s;width:0%;}
+
+  .day-tabs{display:flex;background:#111;border-top:1px solid rgba(255,255,255,.06);}
+  .day-tab{flex:1;padding:12px 4px;font-size:11px;font-weight:700;color:#555;text-align:center;}
+  .day-tab.active{color:var(--c);border-bottom:2.5px solid var(--c);}
+
+  #exercises{padding:10px 16px;}
+  .ex-card{margin-bottom:10px;background:rgba(255,255,255,.05);border-radius:12px;overflow:hidden;}
+  .ex-header{padding:12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  .ex-name{font-weight:700;font-size:14px;}
+  .ex-body{display:none;padding:12px;border-top:1px solid rgba(255,255,255,.05);}
   .ex-body.open{display:block;}
 
-  /* SETS */
-  .set-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
-  .set-btn{width:38px;height:38px;border-radius:8px;background:#222;color:#fff;font-weight:700;}
+  .set-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .set-btn{width:40px;height:40px;border-radius:8px;background:#222;color:#fff;font-weight:700;}
   .set-btn.done{background:var(--c);color:#000;}
-  .set-input{background:#111;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;width:85px;text-align:center;}
-  
-  /* TIMER OVERLAY */
+  .set-input{background:#111;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;width:100px;text-align:center;}
+
+  .yt-btn{display:inline-block;margin-top:10px;padding:8px 12px;background:#ff0000;color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;}
+  .add-set{background:none;color:var(--c);font-size:10px;font-weight:700;border:1px solid var(--c);padding:2px 8px;border-radius:4px;margin-left:10px;}
+
+  /* TIMER */
   #timer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;}
   #timer-overlay.show{display:flex;}
-  #t-secs{font-size:80px;color:var(--c);}
+  #t-secs{font-size:100px;color:var(--c);}
 
-  .yt-btn{display:inline-block;margin-top:10px;padding:8px 12px;background:#ff0000;color:#fff;border-radius:6px;font-size:11px;font-weight:700;}
+  .admin-btns{display:flex;gap:10px;padding:10px 16px;font-size:10px;}
+  .btn-reset{background:none;color:#444;font-weight:700;}
 </style>
 </head>
-<body>
+<body class="phase-1" id="body-tag">
 
 <div id="timer-overlay">
   <div class="bebas" style="letter-spacing:3px; color:#888">REST</div>
@@ -58,178 +66,206 @@
 
 <div id="header">
   <div style="display:flex;align-items:center;gap:10px;">
-    <div id="phase-color-bar" style="width:6px;height:30px;background:var(--c);border-radius:3px;"></div>
+    <div style="width:6px;height:30px;background:var(--c);border-radius:3px;"></div>
     <div>
-      <div id="phase-title" class="bebas" style="font-size:10px; color:var(--c)">PHASE 1: VOLUME</div>
-      <div id="day-title" class="bebas" style="font-size:24px;">DAY 1: BACK & TRAPS</div>
+      <div id="phase-label" class="bebas" style="font-size:10px; color:var(--c)">PHASE 1: VOLUME</div>
+      <div id="week-day-title" class="bebas" style="font-size:24px;">WEEK 1 - DAY 1</div>
     </div>
   </div>
   <div class="phase-tabs">
-    <button class="phase-tab" onclick="setPhase(1)">F1</button>
-    <button class="phase-tab" onclick="setPhase(2)">F2</button>
-    <button class="phase-tab" onclick="setPhase(3)">F3</button>
+    <button class="phase-tab" id="p1-btn" onclick="setPhase(1)">F1</button>
+    <button class="phase-tab" id="p2-btn" onclick="setPhase(2)">F2</button>
+    <button class="phase-tab" id="p3-btn" onclick="setPhase(3)">F3</button>
+  </div>
+  <div class="week-tabs" id="week-container">
+    <!-- Weeks will be injected here -->
   </div>
 </div>
 
-<div class="admin-bar">
+<div class="admin-btns">
     <button class="btn-reset" onclick="resetDone()">RESET DONE</button>
-    <button class="btn-reset" onclick="resetAll()">RESET ALL</button>
+    <button class="btn-reset" onclick="resetAll()">RESET ALL DATA</button>
 </div>
+
 <div id="progress-bar-bg"><div id="progress-bar"></div></div>
 
-<div id="day-tabs" style="display:flex; background:#111; overflow-x:auto;">
-  <div class="day-tab" onclick="setDay(1)">DAY 1</div>
-  <div class="day-tab" onclick="setDay(2)">DAY 2</div>
-  <div class="day-tab" onclick="setDay(3)">DAY 3</div>
-  <div class="day-tab" onclick="setDay(4)">DAY 4</div>
+<div class="day-tabs">
+  <div class="day-tab" id="d1-btn" onclick="setDay(1)">DAY 1</div>
+  <div class="day-tab" id="d2-btn" onclick="setDay(2)">DAY 2</div>
+  <div class="day-tab" id="d3-btn" onclick="setDay(3)">DAY 3</div>
+  <div class="day-tab" id="d4-btn" onclick="setDay(4)">DAY 4</div>
 </div>
 
 <div id="exercises"></div>
 
 <script>
-// --- DATA (Tu rutina completa del PDF) ---
+// FULL DATABASE FROM PDF
 const workoutData = {
-    p1: {
-        name: "PHASE 1: VOLUME", color: "#e8ff47",
-        days: {
-            1: { title: "BACK & TRAPS", ex: [
-                {name: "Pull Ups", sets: 2, reps: "AMAP", yt: "https://youtu.be", img: "https://fitnessprogramer.com"},
-                {name: "Barbell Rows", sets: 2, reps: "10", yt: "https://youtu.be", img: "https://fitnessprogramer.com"}
-            ]},
-            2: { title: "CHEST & SHOULDERS", ex: [
-                {name: "Bench Press", sets: 2, reps: "10", yt: "https://youtu.be", img: "https://fitnessprogramer.com"}
-            ]}
-        }
-    },
-    p2: { name: "PHASE 2: INTENSITY", color: "#47fffa" },
-    p3: { name: "PHASE 3: FREQUENCY", color: "#ff47eb" }
+  p1: { 
+    name: "PHASE 1: VOLUME", 
+    weeks: [1,2,3,4],
+    days: {
+      1: { title: "BACK & TRAPS", ex: [
+        {name: "Pull Ups", sets: 2, reps: "AMAP", yt: "https://youtube.com"},
+        {name: "Barbell Rows", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Seated Cable Rows", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Hyperextensions", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Upright Rows", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Dumbbell Shrugs", sets: 2, reps: "10", yt: "https://youtube.com"}
+      ]},
+      2: { title: "CHEST & SHOULDERS", ex: [
+        {name: "Bench Press", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Incline DB Press", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Decline Pushups", sets: 2, reps: "AMAP", yt: "https://youtube.com"},
+        {name: "DB Military Press", sets: 2, reps: "10", yt: "https://youtube.com"}
+      ]},
+      3: { title: "LEGS", ex: [
+        {name: "Squat", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Leg Press", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Stiff Leg Deadlift", sets: 2, reps: "10", yt: "https://youtube.com"}
+      ]},
+      4: { title: "ARMS", ex: [
+        {name: "Barbell Curls", sets: 2, reps: "10", yt: "https://youtube.com"},
+        {name: "Close Grip Bench", sets: 2, reps: "10", yt: "https://youtube.com"}
+      ]}
+    }
+  },
+  p2: { name: "PHASE 2: INTENSITY", weeks: [5,6,7,8], days: { 1: { title: "UPPER BODY", ex: [{name: "Pull Ups", sets: 3, reps: "AMAP"}]}, 2: {title: "LOWER BODY", ex: [{name: "Squats", sets: 3, reps: "8"}]} } },
+  p3: { name: "PHASE 3: FREQUENCY", weeks: [9,10,11,12], days: { 1: { title: "FULL BODY A", ex: [{name: "Squats", sets: 2, reps: "6"}]} } }
 };
 
-let currentPhase = parseInt(localStorage.getItem('v4_phase')) || 1;
-let currentDay = parseInt(localStorage.getItem('v4_day')) || 1;
+let currentPhase = parseInt(localStorage.getItem('v5_phase')) || 1;
+let currentWeek = parseInt(localStorage.getItem('v5_week')) || 1;
+let currentDay = parseInt(localStorage.getItem('v5_day')) || 1;
 let timerInterval;
 
-function init() {
-    renderTabs();
-    renderExercises();
+function setPhase(p) {
+  currentPhase = p;
+  currentWeek = workoutData['p'+p].weeks[0];
+  localStorage.setItem('v5_phase', p);
+  updateUI();
 }
 
-function setPhase(p) {
-    currentPhase = p;
-    localStorage.setItem('v4_phase', p);
-    renderTabs();
-    renderExercises();
+function setWeek(w) {
+  currentWeek = w;
+  localStorage.setItem('v5_week', w);
+  updateUI();
 }
 
 function setDay(d) {
-    currentDay = d;
-    localStorage.setItem('v4_day', d);
-    renderTabs();
-    renderExercises();
+  currentDay = d;
+  localStorage.setItem('v5_day', d);
+  updateUI();
 }
 
-function renderTabs() {
-    const pData = workoutData['p'+currentPhase];
-    document.documentElement.style.setProperty('--c', pData.color);
-    document.getElementById('phase-title').innerText = pData.name;
-    
-    document.querySelectorAll('.phase-tab').forEach((t, i) => t.className = (i + 1 == currentPhase) ? 'phase-tab active' : 'phase-tab');
-    document.querySelectorAll('.day-tab').forEach((t, i) => t.className = (i + 1 == currentDay) ? 'day-tab active' : 'day-tab');
+function updateUI() {
+  const pData = workoutData['p'+currentPhase];
+  document.getElementById('body-tag').className = 'phase-' + currentPhase;
+  document.getElementById('phase-label').innerText = pData.name;
+  document.getElementById('week-day-title').innerText = `WEEK ${currentWeek} - DAY ${currentDay}`;
+
+  // Tabs Active State
+  [1,2,3].forEach(i => document.getElementById(`p${i}-btn`).classList.toggle('active', i === currentPhase));
+  [1,2,3,4].forEach(i => document.getElementById(`d${i}-btn`).classList.toggle('active', i === currentDay));
+
+  // Render Weeks
+  const weekCont = document.getElementById('week-container');
+  weekCont.innerHTML = pData.weeks.map(w => `<button class="week-tab ${w===currentWeek?'active':''}" onclick="setWeek(${w})">W${w}</button>`).join('');
+
+  renderExercises();
 }
 
 function renderExercises() {
-    const container = document.getElementById('exercises');
-    const phase = workoutData['p' + currentPhase];
-    const day = phase.days ? phase.days[currentDay] : null;
-    
-    if(!day) {
-        container.innerHTML = `<p style="text-align:center; padding:50px; color:#444">Coming Soon...</p>`;
-        return;
-    }
+  const container = document.getElementById('exercises');
+  const dayData = workoutData['p'+currentPhase].days[currentDay];
+  
+  if(!dayData) {
+    container.innerHTML = `<p style="text-align:center; padding:40px; color:#444">Rest Day or Content Coming Soon</p>`;
+    return;
+  }
 
-    document.getElementById('day-title').innerText = `DAY ${currentDay}: ${day.title}`;
-    
-    container.innerHTML = day.ex.map((ex, exIdx) => {
-        const extraKey = `v4_p${currentPhase}d${currentDay}e${exIdx}_extras`;
-        const extras = parseInt(localStorage.getItem(extraKey)) || 0;
-        const totalSets = ex.sets + extras;
+  container.innerHTML = dayData.ex.map((ex, exIdx) => {
+    const extraKey = `v5_p${currentPhase}w${currentWeek}d${currentDay}e${exIdx}_extras`;
+    const extras = parseInt(localStorage.getItem(extraKey)) || 0;
+    const totalSets = ex.sets + extras;
 
-        return `
-        <div class="ex-card">
-            <div class="ex-header" onclick="this.nextElementSibling.classList.toggle('open')">
-                <img src="${ex.img}" class="ex-img-mini">
-                <div class="ex-name">${ex.name} <br><small style="color:#666">${ex.reps} Reps</small></div>
-                <div style="font-size:12px; color:#444">▼</div>
-            </div>
-            <div class="ex-body">
-                <div style="display:flex; justify-content:space-between; align-items:center">
-                    <a href="${ex.yt}" target="_blank" class="yt-btn">WATCH ON YOUTUBE</a>
-                    <button class="add-set-btn" onclick="addSet(${exIdx})">+ ADD SET</button>
-                </div>
-                ${Array.from({length: totalSets}).map((_, sIdx) => {
-                    const id = `v4_p${currentPhase}d${currentDay}e${exIdx}s${sIdx}`;
-                    const done = localStorage.getItem(id + '_done') === 'true';
-                    const val = localStorage.getItem(id + '_val') || '';
-                    return `
-                    <div class="set-row">
-                        <button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${id}', this)">${sIdx+1}</button>
-                        <input type="text" class="set-input" placeholder="Weight" value="${val}" oninput="saveVal('${id}', this.value)">
-                    </div>`;
-                }).join('')}
-            </div>
-        </div>`;
-    }).join('');
-    updateProgress();
+    return `
+      <div class="ex-card">
+        <div class="ex-header" onclick="toggleCard(this)">
+          <span class="ex-name">${ex.name} <small style="color:#666; margin-left:10px">${ex.reps} Reps</small></span>
+          <span>▼</span>
+        </div>
+        <div class="ex-body">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <a href="${ex.yt}" target="_blank" class="yt-btn">YOUTUBE GUIDE</a>
+            <button class="add-set" onclick="addSet(${exIdx})">+ ADD SET</button>
+          </div>
+          ${Array.from({length: totalSets}).map((_, sIdx) => {
+            const id = `v5_p${currentPhase}w${currentWeek}d${currentDay}e${exIdx}s${sIdx}`;
+            const done = localStorage.getItem(id + '_done') === 'true';
+            const val = localStorage.getItem(id + '_val') || '';
+            return `
+              <div class="set-row">
+                <button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${id}', this)">${sIdx+1}</button>
+                <input type="text" class="set-input" placeholder="Weight" value="${val}" oninput="saveVal('${id}', this.value)">
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+  updateProgress();
 }
 
+function toggleCard(el) { el.nextElementSibling.classList.toggle('open'); }
+
 function toggleSet(id, btn) {
-    const isDone = !btn.classList.contains('done');
-    btn.classList.toggle('done');
-    localStorage.setItem(id + '_done', isDone);
-    if(isDone) startTimer();
-    updateProgress();
+  const isDone = !btn.classList.contains('done');
+  btn.classList.toggle('done');
+  localStorage.setItem(id + '_done', isDone);
+  if(isDone) startTimer();
+  updateProgress();
 }
 
 function saveVal(id, v) { localStorage.setItem(id + '_val', v); }
 
 function addSet(idx) {
-    const key = `v4_p${currentPhase}d${currentDay}e${idx}_extras`;
-    localStorage.setItem(key, (parseInt(localStorage.getItem(key)) || 0) + 1);
-    renderExercises();
+  const key = `v5_p${currentPhase}w${currentWeek}d${currentDay}e${idx}_extras`;
+  localStorage.setItem(key, (parseInt(localStorage.getItem(key)) || 0) + 1);
+  renderExercises();
 }
 
 function startTimer() {
-    let timeLeft = 60;
-    document.getElementById('timer-overlay').classList.add('show');
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('t-secs').innerText = timeLeft;
-        if(timeLeft <= 0) stopTimer();
-    }, 1000);
+  let time = 60;
+  document.getElementById('timer-overlay').classList.add('show');
+  timerInterval = setInterval(() => {
+    time--;
+    document.getElementById('t-secs').innerText = time;
+    if(time <= 0) stopTimer();
+  }, 1000);
 }
 
 function stopTimer() {
-    clearInterval(timerInterval);
-    document.getElementById('timer-overlay').classList.remove('show');
-    document.getElementById('t-secs').innerText = 60;
+  clearInterval(timerInterval);
+  document.getElementById('timer-overlay').classList.remove('show');
+  document.getElementById('t-secs').innerText = 60;
 }
 
 function updateProgress() {
-    const btns = document.querySelectorAll('.set-btn');
-    const done = document.querySelectorAll('.set-btn.done');
-    document.getElementById('progress-bar').style.width = btns.length ? (done.length/btns.length*100)+'%' : '0%';
+  const btns = document.querySelectorAll('.set-btn');
+  const done = document.querySelectorAll('.set-btn.done');
+  document.getElementById('progress-bar').style.width = btns.length ? (done.length/btns.length*100)+'%' : '0%';
 }
 
 function resetDone() {
-    if(confirm("Reset today's checks?")) {
-        Object.keys(localStorage).forEach(k => { if(k.includes(`p${currentPhase}d${currentDay}`) && k.endsWith('_done')) localStorage.setItem(k, false); });
-        renderExercises();
-    }
+  if(confirm("Reset today's checks?")) {
+    Object.keys(localStorage).forEach(k => { if(k.includes(`p${currentPhase}w${currentWeek}d${currentDay}`) && k.endsWith('_done')) localStorage.setItem(k, false); });
+    renderExercises();
+  }
 }
 
-function resetAll() { if(confirm("DELETE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+function resetAll() { if(confirm("DELETE ALL DATA?")) { localStorage.clear(); location.reload(); } }
 
-window.onload = init;
+window.onload = updateUI;
 </script>
 </body>
 </html>
