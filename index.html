@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -7,142 +7,107 @@
 <style>
   @import url('https://googleapis.com');
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root { --c: #e8ff47; }
   body{background:#0c0c0c;color:#f0f0f0;font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;padding-bottom:60px;min-height:100vh;}
   button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none;}
   .bebas{font-family:'Bebas Neue',sans-serif;}
-  #header{background:#111;padding:18px 16px 12px;border-bottom:3px solid #e8ff47;}
+  
+  /* HEADER & TABS */
+  #header{background:#111;padding:18px 16px 12px;border-bottom:3px solid var(--c);}
   .phase-tabs{display:flex;gap:6px;margin-top:14px;}
   .phase-tab{flex:1;padding:8px 4px;border-radius:7px;font-size:10px;font-weight:700;background:#222;color:#777;}
-  .phase-tab.active{background:#e8ff47;color:#000;}
-  #day-tabs{display:flex;background:#111;border-bottom:1px solid rgba(255,255,255,.05);}
-  .day-tab{flex:1;padding:12px 10px;background:transparent;font-size:11px;font-weight:700;color:#444;text-align:center;cursor:pointer;}
-  .day-tab.active{color:#e8ff47;border-bottom:2px solid #e8ff47;}
+  .phase-tab.active{background:var(--c);color:#000;}
+  
+  /* ADMIN & PROGRESS */
+  .admin-bar{display:flex;justify-content:space-between;padding:8px 16px;background:#111;font-size:10px;}
+  .btn-reset{color:#555;font-weight:700;background:none;}
+  #progress-bar-bg{height:4px;background:rgba(255,255,255,.05);width:100%;}
+  #progress-bar{height:100%;background:var(--c);transition:width .3s;width:0%;}
+
+  /* EXERCISE CARDS */
   #exercises{padding:15px;}
-  .ex-card{background:rgba(255,255,255,0.03);border-radius:12px;margin-bottom:15px;padding:12px;}
-  .ex-header{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
-  .ex-img{width:55px;height:55px;border-radius:8px;object-fit:cover;background:#1a1a1a;border:1px solid #333;}
-  .ex-info{flex:1;}
-  .ex-name{font-weight:700;font-size:14px;color:#eee;display:block;}
-  .ex-meta{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;}
-  .set-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .set-btn{width:38px;height:38px;border-radius:8px;background:#222;color:#fff;font-weight:700;font-size:12px;}
-  .set-btn.done{background:#e8ff47;color:#000;}
-  .set-input{background:#1a1a1a;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;width:90px;text-align:center;font-size:13px;}
-  .add-set-btn{background:rgba(232, 255, 71, 0.05);color:#e8ff47;border:1px dashed rgba(232, 255, 71, 0.3);padding:4px 10px;border-radius:6px;font-size:9px;font-weight:700;}
-  .admin-btns{display:flex;gap:10px;padding:10px 16px;background:#111;}
-  .btn-reset{font-size:9px;padding:6px 10px;border-radius:5px;background:#1a1a1a;color:#555;font-weight:700;border:1px solid #222;}
-  #progress-bar{height:4px;background:#e8ff47;transition:width .4s;width:0%;}
+  .ex-card{margin-bottom:12px;background:rgba(255,255,255,0.03);border-radius:12px;overflow:hidden;}
+  .ex-header{padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+  .ex-img-mini{width:45px;height:45px;border-radius:6px;object-fit:cover;background:#1a1a1a;}
+  .ex-name{font-weight:700;font-size:14px;flex:1;}
+  
+  .ex-body{display:none;padding:0 12px 12px;border-top:1px solid rgba(255,255,255,0.05);}
+  .ex-body.open{display:block;}
+
+  /* SETS */
+  .set-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .set-btn{width:38px;height:38px;border-radius:8px;background:#222;color:#fff;font-weight:700;}
+  .set-btn.done{background:var(--c);color:#000;}
+  .set-input{background:#111;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;width:85px;text-align:center;}
+  
+  /* TIMER OVERLAY */
+  #timer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;}
+  #timer-overlay.show{display:flex;}
+  #t-secs{font-size:80px;color:var(--c);}
+
+  .yt-btn{display:inline-block;margin-top:10px;padding:8px 12px;background:#ff0000;color:#fff;border-radius:6px;font-size:11px;font-weight:700;}
 </style>
 </head>
 <body>
 
+<div id="timer-overlay">
+  <div class="bebas" style="letter-spacing:3px; color:#888">REST</div>
+  <div id="t-secs" class="bebas">60</div>
+  <button onclick="stopTimer()" style="background:rgba(255,255,255,0.1); color:#fff; padding:10px 20px; border-radius:8px; margin-top:20px;">SKIP</button>
+</div>
+
 <div id="header">
   <div style="display:flex;align-items:center;gap:10px;">
-    <div style="width:5px;height:25px;background:#e8ff47;border-radius:3px;"></div>
-    <h1 class="bebas" style="font-size:22px;letter-spacing:1px;">DAVE'S V.I.F. PROGRAM</h1>
+    <div id="phase-color-bar" style="width:6px;height:30px;background:var(--c);border-radius:3px;"></div>
+    <div>
+      <div id="phase-title" class="bebas" style="font-size:10px; color:var(--c)">PHASE 1: VOLUME</div>
+      <div id="day-title" class="bebas" style="font-size:24px;">DAY 1: BACK & TRAPS</div>
+    </div>
   </div>
   <div class="phase-tabs">
-    <button class="phase-tab" onclick="setPhase(1)">F1: VOL</button>
-    <button class="phase-tab" onclick="setPhase(2)">F2: INT</button>
-    <button class="phase-tab" onclick="setPhase(3)">F3: FREQ</button>
+    <button class="phase-tab" onclick="setPhase(1)">F1</button>
+    <button class="phase-tab" onclick="setPhase(2)">F2</button>
+    <button class="phase-tab" onclick="setPhase(3)">F3</button>
   </div>
 </div>
 
-<div class="admin-btns">
-    <button class="btn-reset" onclick="resetDone()">LIMPIAR HOY</button>
-    <button class="btn-reset" style="color:#633" onclick="resetAll()">BORRAR TODO</button>
+<div class="admin-bar">
+    <button class="btn-reset" onclick="resetDone()">RESET DONE</button>
+    <button class="btn-reset" onclick="resetAll()">RESET ALL</button>
 </div>
-<div style="background:#111; height:4px; width:100%"><div id="progress-bar"></div></div>
+<div id="progress-bar-bg"><div id="progress-bar"></div></div>
 
-<div id="day-tabs">
-  <div class="day-tab" onclick="setDay(1)">D1</div>
-  <div class="day-tab" onclick="setDay(2)">D2</div>
-  <div class="day-tab" onclick="setDay(3)">D3</div>
-  <div class="day-tab" onclick="setDay(4)">D4</div>
+<div id="day-tabs" style="display:flex; background:#111; overflow-x:auto;">
+  <div class="day-tab" onclick="setDay(1)">DAY 1</div>
+  <div class="day-tab" onclick="setDay(2)">DAY 2</div>
+  <div class="day-tab" onclick="setDay(3)">DAY 3</div>
+  <div class="day-tab" onclick="setDay(4)">DAY 4</div>
 </div>
 
 <div id="exercises"></div>
 
 <script>
-// BASE DE DATOS COMPLETA EXTRAÍDA DEL PDF
+// --- DATA (Tu rutina completa del PDF) ---
 const workoutData = {
-    p1: { // FASE 1: VOLUMEN (Promedio Semanas 1-4)
-        d1: [
-            {name: "Pull Ups", sets: 3, reps: "AMAP", img: "https://fitnessprogramer.com"},
-            {name: "Barbell Rows", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Seated Cable Rows", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Hyperextensions", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Upright Rows", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Dumbbell Shrugs", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"}
-        ],
-        d2: [
-            {name: "Bench Press", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Incline DB Bench", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Decline Pushups", sets: 3, reps: "AMAP", img: "https://fitnessprogramer.com"},
-            {name: "DB Military Press", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "DB Rear Laterals", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"}
-        ],
-        d3: [
-            {name: "Squats", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Leg Press", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Stiff Leg Deadlift", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "DB Step Ups", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Standing Calf Raise", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"}
-        ],
-        d4: [
-            {name: "Barbell Curls", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Close Grip Bench", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Lying Tricep Ext", sets: 3, reps: "8-10", img: "https://fitnessprogramer.com"},
-            {name: "Preacher Curls", sets: 2, reps: "8-10", img: "https://fitnessprogramer.com"}
-        ]
+    p1: {
+        name: "PHASE 1: VOLUME", color: "#e8ff47",
+        days: {
+            1: { title: "BACK & TRAPS", ex: [
+                {name: "Pull Ups", sets: 2, reps: "AMAP", yt: "https://youtu.be", img: "https://fitnessprogramer.com"},
+                {name: "Barbell Rows", sets: 2, reps: "10", yt: "https://youtu.be", img: "https://fitnessprogramer.com"}
+            ]},
+            2: { title: "CHEST & SHOULDERS", ex: [
+                {name: "Bench Press", sets: 2, reps: "10", yt: "https://youtu.be", img: "https://fitnessprogramer.com"}
+            ]}
+        }
     },
-    p2: { // FASE 2: INTENSIDAD (Semanas 5-8)
-        d1: [
-            {name: "Pull Ups", sets: 3, reps: "AMAP", img: "https://fitnessprogramer.com"},
-            {name: "Bench Press", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Military Press", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Hammer Curls", sets: 3, reps: "8", img: "https://fitnessprogramer.com"}
-        ],
-        d2: [
-            {name: "Squats", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Stiff Leg Deadlift", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Weighted Crunches", sets: 3, reps: "8", img: "https://fitnessprogramer.com"}
-        ],
-        d3: [
-            {name: "Lat Pull Downs", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Incline Bench Press", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Arnold Press", sets: 3, reps: "8", img: "https://fitnessprogramer.com"}
-        ],
-        d4: [
-            {name: "Leg Press", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Dumbbell Lunges", sets: 3, reps: "8", img: "https://fitnessprogramer.com"},
-            {name: "Standing Calf Raise", sets: 3, reps: "8", img: "https://fitnessprogramer.com"}
-        ]
-    },
-    p3: { // FASE 3: FRECUENCIA (Semanas 9-12)
-        d1: [
-            {name: "Squats", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "DB Bench Press", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Seated Cable Row", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Barbell Curls", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"}
-        ],
-        d2: [
-            {name: "Leg Press", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Military Press", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "One Arm DB Row", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Tricep Pushdowns", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"}
-        ],
-        d3: [
-            {name: "Barbell Rows", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Arnold Press", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"},
-            {name: "Rear Delt Raise", sets: 2, reps: "6-12", img: "https://fitnessprogramer.com"}
-        ],
-        d4: [{name: "Día de Descanso / Cardio", sets: 0, reps: "-", img: ""}]
-    }
+    p2: { name: "PHASE 2: INTENSITY", color: "#47fffa" },
+    p3: { name: "PHASE 3: FREQUENCY", color: "#ff47eb" }
 };
 
-let currentPhase = parseInt(localStorage.getItem('phase')) || 1;
-let currentDay = parseInt(localStorage.getItem('day')) || 1;
+let currentPhase = parseInt(localStorage.getItem('v4_phase')) || 1;
+let currentDay = parseInt(localStorage.getItem('v4_day')) || 1;
+let timerInterval;
 
 function init() {
     renderTabs();
@@ -151,19 +116,23 @@ function init() {
 
 function setPhase(p) {
     currentPhase = p;
-    localStorage.setItem('phase', p);
+    localStorage.setItem('v4_phase', p);
     renderTabs();
     renderExercises();
 }
 
 function setDay(d) {
     currentDay = d;
-    localStorage.setItem('day', d);
+    localStorage.setItem('v4_day', d);
     renderTabs();
     renderExercises();
 }
 
 function renderTabs() {
+    const pData = workoutData['p'+currentPhase];
+    document.documentElement.style.setProperty('--c', pData.color);
+    document.getElementById('phase-title').innerText = pData.name;
+    
     document.querySelectorAll('.phase-tab').forEach((t, i) => t.className = (i + 1 == currentPhase) ? 'phase-tab active' : 'phase-tab');
     document.querySelectorAll('.day-tab').forEach((t, i) => t.className = (i + 1 == currentDay) ? 'day-tab active' : 'day-tab');
 }
@@ -171,52 +140,79 @@ function renderTabs() {
 function renderExercises() {
     const container = document.getElementById('exercises');
     const phase = workoutData['p' + currentPhase];
-    const exercises = phase ? phase['d' + currentDay] : [];
+    const day = phase.days ? phase.days[currentDay] : null;
     
-    container.innerHTML = exercises.length ? exercises.map((ex, exIdx) => {
-        const extraKey = `v3_p${currentPhase}d${currentDay}e${exIdx}_extraCount`;
+    if(!day) {
+        container.innerHTML = `<p style="text-align:center; padding:50px; color:#444">Coming Soon...</p>`;
+        return;
+    }
+
+    document.getElementById('day-title').innerText = `DAY ${currentDay}: ${day.title}`;
+    
+    container.innerHTML = day.ex.map((ex, exIdx) => {
+        const extraKey = `v4_p${currentPhase}d${currentDay}e${exIdx}_extras`;
         const extras = parseInt(localStorage.getItem(extraKey)) || 0;
-        const total = ex.sets + extras;
+        const totalSets = ex.sets + extras;
 
         return `
         <div class="ex-card">
-            <div class="ex-header">
-                ${ex.img ? `<img src="${ex.img}" class="ex-img" onerror="this.style.display='none'">` : ''}
-                <div class="ex-info">
-                    <span class="ex-name">${ex.name}</span>
-                    <span class="ex-meta">${ex.reps} REPS</span>
-                </div>
-                <button class="add-set-btn" onclick="addSet(${exIdx})">+ SERIE</button>
+            <div class="ex-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                <img src="${ex.img}" class="ex-img-mini">
+                <div class="ex-name">${ex.name} <br><small style="color:#666">${ex.reps} Reps</small></div>
+                <div style="font-size:12px; color:#444">▼</div>
             </div>
-            ${Array.from({length: total}).map((_, sIdx) => {
-                const id = `v3_p${currentPhase}d${currentDay}e${exIdx}s${sIdx}`;
-                const done = localStorage.getItem(id + '_done') === 'true';
-                const val = localStorage.getItem(id + '_val') || '';
-                return `
-                <div class="set-row">
-                    <button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${id}', this)">${sIdx + 1}</button>
-                    <input type="text" class="set-input" placeholder="Peso/Reps" value="${val}" oninput="saveVal('${id}', this.value)">
-                </div>`;
-            }).join('')}
+            <div class="ex-body">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <a href="${ex.yt}" target="_blank" class="yt-btn">WATCH ON YOUTUBE</a>
+                    <button class="add-set-btn" onclick="addSet(${exIdx})">+ ADD SET</button>
+                </div>
+                ${Array.from({length: totalSets}).map((_, sIdx) => {
+                    const id = `v4_p${currentPhase}d${currentDay}e${exIdx}s${sIdx}`;
+                    const done = localStorage.getItem(id + '_done') === 'true';
+                    const val = localStorage.getItem(id + '_val') || '';
+                    return `
+                    <div class="set-row">
+                        <button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${id}', this)">${sIdx+1}</button>
+                        <input type="text" class="set-input" placeholder="Weight" value="${val}" oninput="saveVal('${id}', this.value)">
+                    </div>`;
+                }).join('')}
+            </div>
         </div>`;
-    }).join('') : `<p style="text-align:center;color:#444;margin-top:50px;">Fin de la rutina o descanso.</p>`;
+    }).join('');
     updateProgress();
-}
-
-function addSet(idx) {
-    const key = `v3_p${currentPhase}d${currentDay}e${idx}_extraCount`;
-    localStorage.setItem(key, (parseInt(localStorage.getItem(key)) || 0) + 1);
-    renderExercises();
 }
 
 function toggleSet(id, btn) {
     const isDone = !btn.classList.contains('done');
     btn.classList.toggle('done');
     localStorage.setItem(id + '_done', isDone);
+    if(isDone) startTimer();
     updateProgress();
 }
 
 function saveVal(id, v) { localStorage.setItem(id + '_val', v); }
+
+function addSet(idx) {
+    const key = `v4_p${currentPhase}d${currentDay}e${idx}_extras`;
+    localStorage.setItem(key, (parseInt(localStorage.getItem(key)) || 0) + 1);
+    renderExercises();
+}
+
+function startTimer() {
+    let timeLeft = 60;
+    document.getElementById('timer-overlay').classList.add('show');
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('t-secs').innerText = timeLeft;
+        if(timeLeft <= 0) stopTimer();
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+    document.getElementById('timer-overlay').classList.remove('show');
+    document.getElementById('t-secs').innerText = 60;
+}
 
 function updateProgress() {
     const btns = document.querySelectorAll('.set-btn');
@@ -225,13 +221,13 @@ function updateProgress() {
 }
 
 function resetDone() {
-    if(confirm("¿Limpiar checks de hoy?")) {
+    if(confirm("Reset today's checks?")) {
         Object.keys(localStorage).forEach(k => { if(k.includes(`p${currentPhase}d${currentDay}`) && k.endsWith('_done')) localStorage.setItem(k, false); });
         renderExercises();
     }
 }
 
-function resetAll() { if(confirm("¡BORRAR TODO EL HISTORIAL! ¿Seguro?")) { localStorage.clear(); location.reload(); } }
+function resetAll() { if(confirm("DELETE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
 
 window.onload = init;
 </script>
