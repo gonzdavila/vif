@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dave's V.I.F. Program</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+/* THEME */
+body{--bg:#0c0c0c;--bg2:#111;--bg3:rgba(255,255,255,.05);--bg4:rgba(255,255,255,.03);--border:rgba(255,255,255,.1);--text:#f0f0f0;--text2:#aaa;--text3:#666;--text4:#555;--text5:#333;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh;transition:background .3s,color .3s;}
+body.light{--bg:#f5f5f5;--bg2:#fff;--bg3:rgba(0,0,0,.04);--bg4:rgba(0,0,0,.02);--border:rgba(0,0,0,.12);--text:#111;--text2:#444;--text3:#777;--text4:#888;--text5:#ccc;background:var(--bg);color:var(--text);}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none;}
+a{font-family:'DM Sans',sans-serif;text-decoration:none;}
+.bebas{font-family:'Bebas Neue',sans-serif;}
+
+/* HEADER */
+#header{background:var(--bg2);padding:18px 16px 12px;border-bottom:3px solid var(--c,#e8ff47);transition:background .3s;}
+#header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+#header-left{display:flex;align-items:center;gap:10px;}
+#hbar{width:6px;height:36px;border-radius:3px;flex-shrink:0;background:#e8ff47;}
+#phase-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#e8ff47;}
+#week-day-title{font-size:28px;letter-spacing:2px;line-height:1;margin-top:2px;}
+
+/* THEME TOGGLE */
+#theme-btn{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.phase-tabs{display:flex;gap:6px;margin-top:0;}
+.phase-tab{flex:1;padding:8px 4px;border:none;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;line-height:1.4;}
+.week-tabs{display:flex;gap:5px;margin-top:8px;}
+.week-tab{flex:1;padding:6px 0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;}
+
+/* PROGRESS */
+#progress-wrap{padding:12px 16px 8px;background:var(--bg2);transition:background .3s;}
+#progress-bar-bg{height:5px;background:var(--bg3);border-radius:3px;margin-top:6px;}
+#progress-bar{height:100%;border-radius:3px;transition:width .3s;width:0%;}
+#completed-msg{display:none;margin-top:10px;padding:10px;text-align:center;border-radius:8px;font-size:18px;letter-spacing:2px;}
+
+/* DAY TABS */
+#day-tabs{display:flex;background:var(--bg2);border-top:1px solid var(--border);transition:background .3s;}
+.day-tab{flex:1;padding:10px 4px;background:transparent;border:none;border-bottom:2.5px solid transparent;font-size:11px;font-weight:600;color:var(--text4);cursor:pointer;white-space:nowrap;text-align:center;line-height:1.3;}
+
+/* DAY INFO */
+#day-info{padding:12px 16px 6px;}
+#rest-badge{display:inline-block;margin-top:5px;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+
+/* CLEAR BUTTONS */
+.clear-btns{display:flex;gap:6px;padding:0 16px 10px;}
+.clear-btn{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;}
+#clear-day-btn{background:rgba(255,107,53,.12);color:#ff6b35;border:1px solid rgba(255,107,53,.3);}
+#clear-all-btn{background:rgba(255,50,50,.1);color:#ff4444;border:1px solid rgba(255,50,50,.25);}
+
+/* NOTE */
+#note-wrap{padding:0 16px 10px;}
+#day-note{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;resize:none;height:48px;outline:none;transition:background .3s,color .3s,border .3s;}
+#day-note::placeholder{color:var(--text5);}
+#day-note:focus{border-color:var(--c,#e8ff47);}
+
+/* EXERCISES */
+#exercises{padding:0 16px;}
+.ex-card{margin-bottom:10px;}
+.ex-header{padding:12px 14px 10px;border-left:3.5px solid #e8ff47;border-radius:0 12px 12px 0;background:var(--bg3);transition:background .15s;}
+.ex-header.ss{border-left-color:rgba(150,150,150,.3);background:var(--bg4);}
+.ex-header.expanded{border-radius:0 12px 0 0;}
+.ex-name-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.ex-name{font-weight:700;font-size:14px;color:var(--text);line-height:1.3;}
+.type-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px;vertical-align:middle;}
+.ex-ss-badge{font-size:10px;font-weight:700;letter-spacing:1px;margin-top:2px;}
+.ex-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.ex-arrow{font-size:12px;margin-left:6px;flex-shrink:0;cursor:pointer;color:var(--text3);}
+.sets-area{margin-top:10px;}
+.set-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.set-btn{width:42px;height:42px;border-radius:8px;font-size:13px;font-weight:700;transition:all .12s;border:none;flex-shrink:0;}
+.set-input-wrap{display:flex;align-items:center;gap:5px;animation:fadeIn .18s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:translateX(0);}}
+.set-val-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;padding:7px 10px;width:78px;text-align:center;-webkit-appearance:none;transition:background .3s,color .3s;}
+.set-val-input:focus{outline:none;}
+.set-unit{font-size:12px;color:var(--text3);font-weight:600;}
+.pr-badge{font-size:13px;margin-left:3px;}
+.remove-set-btn{width:28px;height:28px;border-radius:6px;background:rgba(255,50,50,.12);color:#ff6060;font-size:16px;font-weight:700;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1;}
+.add-set-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--bg4);border:1px dashed var(--border);border-radius:8px;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;margin-top:4px;}
+
+/* BODY */
+.ex-body{display:none;border-left:3.5px solid var(--border);background:var(--bg4);border-radius:0 0 12px 12px;padding:12px 14px;}
+.ex-body.open{display:block;}
+.hist-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.history-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px;}
+.hist-cell{background:var(--bg3);border-radius:6px;padding:6px 4px;text-align:center;}
+.hist-wk{font-size:9px;color:var(--text4);font-weight:600;margin-bottom:3px;}
+.hist-val{font-size:10px;font-weight:700;line-height:1.4;}
+.hist-val.has{color:var(--text2);}
+.hist-val.none{color:var(--text5);}
+.hist-arrow{font-size:9px;margin-top:2px;}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.yt-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:#ff0000;color:#fff;border-radius:8px;font-size:13px;font-weight:700;}
+.yt-hint{margin-top:8px;font-size:11px;color:var(--text3);line-height:1.5;}
+
+/* TIMER */
+#timer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:1000;flex-direction:column;align-items:center;justify-content:center;}
+#timer-overlay.show{display:flex;}
+#t-lbl{font-size:11px;color:#888;font-weight:700;letter-spacing:3px;margin-bottom:4px;}
+#t-ex{font-size:14px;color:#aaa;font-weight:600;margin-bottom:20px;text-align:center;padding:0 20px;line-height:1.4;}
+#t-ring{position:relative;width:200px;height:200px;margin-bottom:24px;}
+#t-svg{transform:rotate(-90deg);}
+#t-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:12;}
+#t-arc{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .95s linear,stroke .3s;}
+#t-disp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+#t-secs{font-size:62px;letter-spacing:-2px;line-height:1;}
+#t-sub{font-size:12px;color:#555;margin-top:4px;font-weight:600;}
+.tbtn{padding:11px 26px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;}
+#t-skip{background:rgba(255,255,255,.1);color:#888;}
+#t-stop{background:rgba(255,50,50,.18);color:#ff6060;border:1px solid rgba(255,50,50,.28);}
+
+/* WORKOUT COMPLETE OVERLAY */
+#wod-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:2000;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;}
+#wod-overlay.show{display:flex;}
+#wod-title{font-size:52px;letter-spacing:3px;line-height:1;margin-bottom:8px;}
+#wod-sub{font-size:16px;color:#aaa;font-weight:600;margin-bottom:32px;letter-spacing:1px;}
+#wod-quote{font-size:15px;color:#888;line-height:1.7;font-style:italic;max-width:320px;margin-bottom:36px;padding:16px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
+#wod-close{padding:14px 36px;border-radius:12px;font-size:16px;font-weight:700;border:none;cursor:pointer;}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#222;color:#f0f0f0;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:3000;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+#tip{margin:18px 16px 0;padding:12px 14px;background:var(--bg4);border-radius:10px;font-size:12px;color:var(--text3);line-height:1.6;border:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<!-- TIMER -->
+<div id="timer-overlay">
+  <div id="t-lbl">DESCANSO</div>
+  <div id="t-ex"></div>
+  <div id="t-ring">
+    <svg id="t-svg" width="200" height="200" viewBox="0 0 200 200">
+      <circle id="t-bg" cx="100" cy="100" r="85"/>
+      <circle id="t-arc" cx="100" cy="100" r="85"/>
+    </svg>
+    <div id="t-disp">
+      <div id="t-secs" class="bebas">70</div>
+      <div id="t-sub">segundos</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button class="tbtn" id="t-skip">Saltar ⏭</button>
+    <button class="tbtn" id="t-stop">Detener ✕</button>
+  </div>
+</div>
+
+<!-- WORKOUT COMPLETE -->
+<div id="wod-overlay">
+  <div id="wod-emoji" style="font-size:56px;margin-bottom:12px;">🏆</div>
+  <div id="wod-title" class="bebas">WORKOUT<br>COMPLETED</div>
+  <div id="wod-sub">Semana <span id="wod-week"></span> · <span id="wod-day"></span></div>
+  <div id="wod-quote">"Moving your body is a privilege, not a punishment. Every rep is proof that you showed up for yourself."</div>
+  <button id="wod-close" class="bebas">¡A SEGUIR! →</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="header-top">
+    <div id="header-left">
+      <div id="hbar"></div>
+      <div>
+        <div id="phase-label" class="bebas"></div>
+        <div id="week-day-title" class="bebas"></div>
+      </div>
+    </div>
+    <button id="theme-btn" title="Cambiar tema">☀️</button>
+  </div>
+  <div class="phase-tabs">
+    <button class="phase-tab" data-phase="0">F1<br><span style="font-size:9px;font-weight:400">Sem 1-4</span></button>
+    <button class="phase-tab" data-phase="1">F2<br><span style="font-size:9px;font-weight:400">Sem 5-8</span></button>
+    <button class="phase-tab" data-phase="2">F3<br><span style="font-size:9px;font-weight:400">Sem 9-12</span></button>
+  </div>
+  <div class="week-tabs">
+    <button class="week-tab" data-week="0"></button>
+    <button class="week-tab" data-week="1"></button>
+    <button class="week-tab" data-week="2"></button>
+    <button class="week-tab" data-week="3"></button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="progress-wrap">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <span id="progress-label" style="font-size:12px;color:var(--text3);"></span>
+    <span id="progress-pct" class="bebas" style="font-size:20px;"></span>
+  </div>
+  <div id="progress-bar-bg"><div id="progress-bar"></div></div>
+  <div id="completed-msg" class="bebas"></div>
+</div>
+
+<!-- DAY TABS -->
+<div id="day-tabs"></div>
+
+<!-- DAY INFO -->
+<div id="day-info">
+  <div id="day-focus" class="bebas" style="font-size:22px;letter-spacing:1px;"></div>
+  <div id="rest-badge"></div>
+</div>
+
+<!-- CLEAR BUTTONS -->
+<div class="clear-btns">
+  <button class="clear-btn" id="clear-day-btn">🗑 Borrar día</button>
+  <button class="clear-btn" id="clear-all-btn">⚠️ Borrar todo</button>
+</div>
+
+<!-- DAY NOTE -->
+<div id="note-wrap">
+  <textarea id="day-note" placeholder="📝 Nota del día... cómo te sentiste, qué mejorar, etc."></textarea>
+</div>
+
+<!-- EXERCISES -->
+<div id="exercises"></div>
+
+<div id="tip">
+  <strong style="color:var(--text2)">💡 Cómo usar:</strong> Toca <strong style="color:var(--text2)">S1, S2...</strong> → ✓ + campo para anotar lb o reps. <strong style="color:var(--text2)">+ Serie extra</strong> para agregar series adicionales. Toca <strong style="color:var(--text2)">▼</strong> para ver historial y video. <strong style="color:var(--text2)">🏆</strong> = nuevo récord personal.
+</div>
+
+<script>
+const BODYWEIGHT = new Set(["Pull Ups","Decline Push Ups"]);
+
+// ── WORKOUT DATA ──────────────────────────────────────────────────────────────
+const PHASES = [
+  {name:"FASE 1: Volumen", shortName:"F1", weeks:"Sem 1-4", color:"#e8ff47",
+   restSeconds:[70,70,90,90], restLabel:["70 seg","70 seg","90 seg","90 seg"],
+   days:[
+    {name:"Día 1", focus:"Back & Traps", exercises:[
+      {name:"Pull Ups", sets:[2,3,4,5], reps:["AMRAP","AMRAP","AMRAP","AMRAP"], ytq:"pull+ups+proper+form+beginners"},
+      {name:"Barbell Rows", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"barbell+bent+over+row+form"},
+      {name:"Seated Cable Rows", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"seated+cable+row+form"},
+      {name:"Hyperextensions", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"hyperextensions+lower+back+form"},
+      {name:"Upright Rows", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"upright+row+barbell+form", ss:1},
+      {name:"Dumbbell Shrugs", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"dumbbell+shrugs+form", ss:1}
+    ]},
+    {name:"Día 2", focus:"Chest & Shoulders", exercises:[
+      {name:"Bench Press", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"bench+press+proper+form+beginners"},
+      {name:"Incline Dumbbell Bench Press", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"incline+dumbbell+bench+press+form", ss:2},
+      {name:"Decline Push Ups", sets:[2,3,4,5], reps:["AMRAP","AMRAP","AMRAP","AMRAP"], ytq:"decline+push+ups+form", ss:2},
+      {name:"Dumbbell Military Press", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"dumbbell+military+press+form"},
+      {name:"Dumbbell Rear Laterals", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"rear+delt+raise+dumbbell+form"}
+    ]},
+    {name:"Día 3", focus:"Legs", exercises:[
+      {name:"Squat", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"squat+barbell+proper+form+beginners"},
+      {name:"Leg Press", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"leg+press+proper+form"},
+      {name:"Stiff Legged Deadlifts", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"stiff+legged+deadlift+form"},
+      {name:"Dumbbell Step Ups", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"dumbbell+step+ups+form"},
+      {name:"Standing Calf Raise", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"standing+calf+raise+form"}
+    ]},
+    {name:"Día 4", focus:"Arms", exercises:[
+      {name:"Barbell Curls", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"barbell+curl+proper+form"},
+      {name:"Close Grip Bench Press", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"close+grip+bench+press+form"},
+      {name:"Lying Tricep Extension", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"lying+tricep+extension+skull+crusher", ss:3},
+      {name:"Standing Dumbbell Curls", sets:[2,3,4,5], reps:[10,8,6,6], ytq:"standing+dumbbell+curl+form", ss:3},
+      {name:"Preacher Curls", sets:[2,3,3,2], reps:[10,8,6,6], ytq:"preacher+curl+form", ss:4},
+      {name:"Tricep Kickbacks", sets:[2,3,3,2], reps:[10,8,6,6], ytq:"tricep+kickback+dumbbell+form", ss:4}
+    ]}
+  ]},
+  {name:"FASE 2: Intensidad", shortName:"F2", weeks:"Sem 5-8", color:"#ff6b35",
+   restSeconds:[70,70,90,90], restLabel:["70 seg","70 seg","90 seg","90 seg"],
+   days:[
+    {name:"Día 1", focus:"Upper Body", exercises:[
+      {name:"Pull Ups", sets:[3,3,4,4], reps:["AMRAP","AMRAP","AMRAP","AMRAP"], ytq:"pull+ups+proper+form"},
+      {name:"Bench Press", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"bench+press+proper+form+beginners"},
+      {name:"Military Press", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"barbell+military+press+form"},
+      {name:"Barbell Shrug", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"barbell+shrugs+form"},
+      {name:"Lying Tricep Extension", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"lying+tricep+extension+form"},
+      {name:"Hammer Curls", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"hammer+curl+dumbbell+form"}
+    ]},
+    {name:"Día 2", focus:"Lower Body", exercises:[
+      {name:"Squats", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"squat+barbell+proper+form"},
+      {name:"Stiff Legged Deadlifts", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"stiff+legged+deadlift+form"},
+      {name:"Seated Calf Raises", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"seated+calf+raise+form"},
+      {name:"Weighted Crunches", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"weighted+crunches+form"},
+      {name:"Cable Pull Ins", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"cable+crunch+pull+ins+form"}
+    ]},
+    {name:"Día 3", focus:"Upper Body", exercises:[
+      {name:"Lat Pull Downs", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"lat+pulldown+proper+form"},
+      {name:"Incline Bench Press", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"incline+bench+press+form"},
+      {name:"Arnold Press", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"arnold+press+dumbbell+form"},
+      {name:"Dumbbell Shrugs", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"dumbbell+shrugs+form"},
+      {name:"Dumbbell Tricep Extensions", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"dumbbell+overhead+tricep+extension+form"},
+      {name:"Incline Dumbbell Curls", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"incline+dumbbell+curl+form"}
+    ]},
+    {name:"Día 4", focus:"Lower Body", exercises:[
+      {name:"Leg Press", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"leg+press+proper+form"},
+      {name:"Dumbbell Lunges", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"dumbbell+lunges+form"},
+      {name:"Standing Calf Raise", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"standing+calf+raise+form"},
+      {name:"Knee Raise w/ Medicine Ball", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"knee+raise+medicine+ball+form"},
+      {name:"Reverse One Leg Crunch", sets:[3,3,4,4], reps:[8,8,6,6], ytq:"reverse+crunch+form"}
+    ]}
+  ]},
+  {name:"FASE 3: Frecuencia", shortName:"F3", weeks:"Sem 9-12", color:"#00d4ff",
+   restSeconds:[90,60,30], restLabel:["","","",""],
+   days:[
+    {name:"Workout A", focus:"Full Body — Pesado", restIdx:0, exercises:[
+      {name:"Squats", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"squat+barbell+proper+form"},
+      {name:"Stiff Leg Deadlifts", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"stiff+legged+deadlift+form"},
+      {name:"Seated Calf Raise", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"seated+calf+raise+form"},
+      {name:"Seated Cable Row", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"seated+cable+row+form"},
+      {name:"Dumbbell Bench Press", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"dumbbell+bench+press+form"},
+      {name:"Dumbbell Shoulder Press", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"dumbbell+overhead+press+form"},
+      {name:"Dumbbell Shrugs", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"dumbbell+shrugs+form"},
+      {name:"Dumbbell Tricep Extension", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"dumbbell+overhead+tricep+extension+form"},
+      {name:"Barbell Bicep Curls", sets:[2,2,2,2], reps:[6,10,12,6], ytq:"barbell+curl+proper+form"}
+    ]},
+    {name:"Workout B", focus:"Full Body — Medio", restIdx:1, exercises:[
+      {name:"Leg Press", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"leg+press+proper+form"},
+      {name:"Leg Curls", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"leg+curl+machine+form"},
+      {name:"Seated Calf Raise", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"seated+calf+raise+form"},
+      {name:"One Arm Dumbbell Row", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"one+arm+dumbbell+row+form"},
+      {name:"Incline Dumbbell Bench Press", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"incline+dumbbell+bench+press+form"},
+      {name:"Military Press", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"barbell+military+press+form"},
+      {name:"Dumbbell Shrugs", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"dumbbell+shrugs+form"},
+      {name:"Tricep Pushdowns", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"tricep+pushdown+cable+form"},
+      {name:"Dumbbell Hammer Curls", sets:[2,2,2,2], reps:[10,12,6,10], ytq:"hammer+curl+dumbbell+form"}
+    ]},
+    {name:"Workout C", focus:"Full Body — Ligero", restIdx:2, exercises:[
+      {name:"Dumbbell Lunges", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"dumbbell+lunges+form"},
+      {name:"Dumbbell Step Ups", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"dumbbell+step+ups+form"},
+      {name:"Barbell Rows", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"barbell+bent+over+row+form"},
+      {name:"Barbell Bench Press", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"bench+press+proper+form+beginners"},
+      {name:"Arnold Press", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"arnold+press+dumbbell+form"},
+      {name:"Rear Delt Raise", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"rear+delt+raise+form"},
+      {name:"Upright Row", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"upright+row+barbell+form"},
+      {name:"Lying Tricep Extension", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"lying+tricep+extension+form"},
+      {name:"Preacher Curls", sets:[2,2,2,2], reps:[12,6,10,12], ytq:"preacher+curl+form"}
+    ]}
+  ]}
+];
+
+// ── PERSISTENCE ───────────────────────────────────────────────────────────────
+function lsLoad(key, def) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; }
+}
+function lsSave(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+let doneMap    = lsLoad("vif_done", {});
+let logData    = lsLoad("vif_log", {});
+let extraSets  = lsLoad("vif_extra", {});
+let notesData  = lsLoad("vif_notes", {});
+let isLight    = lsLoad("vif_theme", false);
+
+if (isLight) document.body.classList.add("light");
+
+function saveDone()  { lsSave("vif_done", doneMap); }
+function saveLog()   { lsSave("vif_log", logData); }
+function saveExtra() { lsSave("vif_extra", extraSets); }
+function saveNotes() { lsSave("vif_notes", notesData); }
+
+function getLog(ph,wk,dy,ei,si)  { return logData[ph]?.[wk]?.[dy]?.[ei]?.[si] || ""; }
+function setLog(ph,wk,dy,ei,si,v){
+  if(!logData[ph])logData[ph]={};if(!logData[ph][wk])logData[ph][wk]={};
+  if(!logData[ph][wk][dy])logData[ph][wk][dy]={};if(!logData[ph][wk][dy][ei])logData[ph][wk][dy][ei]={};
+  logData[ph][wk][dy][ei][si]=v; saveLog();
+}
+function getExtra(ph,wk,dy,ei)  { return extraSets[ph]?.[wk]?.[dy]?.[ei] || 0; }
+function setExtra(ph,wk,dy,ei,v){
+  if(!extraSets[ph])extraSets[ph]={};if(!extraSets[ph][wk])extraSets[ph][wk]={};
+  if(!extraSets[ph][wk][dy])extraSets[ph][wk][dy]={};
+  extraSets[ph][wk][dy][ei]=v; saveExtra();
+}
+function getNote(ph,wk,dy)      { return notesData[ph]?.[wk]?.[dy] || ""; }
+function setNote(ph,wk,dy,v)    {
+  if(!notesData[ph])notesData[ph]={};if(!notesData[ph][wk])notesData[ph][wk]={};
+  notesData[ph][wk][dy]=v; saveNotes();
+}
+function dkey(ph,wk,dy,ei,si)   { return `${ph}-${wk}-${dy}-${ei}-${si}`; }
+function isDone(ei,si)           { return !!doneMap[dkey(phaseIdx,weekIdx,dayIdx,ei,si)]; }
+function setDone(ei,si,val)      { doneMap[dkey(phaseIdx,weekIdx,dayIdx,ei,si)]=val; saveDone(); }
+
+// PR check: current value is strictly higher than every previous week for same exercise/set
+function isPR(ph,wk,dy,ei,si) {
+  if(wk===0) return false;
+  const cur = parseFloat(getLog(ph,wk,dy,ei,si));
+  if(!cur || isNaN(cur)) return false;
+  for(let w=0;w<wk;w++){
+    const prev = parseFloat(getLog(ph,w,dy,ei,si));
+    if(prev && !isNaN(prev) && prev >= cur) return false;
+  }
+  return true;
+}
+
+function getWeekStat(ph,wk,dy,ei,numSets,isTotal) {
+  let sum=0,cnt=0;
+  for(let si=0;si<numSets;si++){const v=getLog(ph,wk,dy,ei,si);if(v){sum+=parseFloat(v);cnt++;}}
+  return cnt>0?(isTotal?sum:sum/cnt):null;
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let phaseIdx=0, weekIdx=0, dayIdx=0, openEx=-1;
+let wodShown = false; // prevent showing overlay multiple times per session
+
+// ── THEME TOGGLE ──────────────────────────────────────────────────────────────
+document.getElementById("theme-btn").onclick = () => {
+  isLight = !isLight;
+  document.body.classList.toggle("light", isLight);
+  document.getElementById("theme-btn").textContent = isLight ? "🌙" : "☀️";
+  lsSave("vif_theme", isLight);
+};
+document.getElementById("theme-btn").textContent = isLight ? "🌙" : "☀️";
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+const CIRCUM = 2 * Math.PI * 85;
+const tOverlay = document.getElementById("timer-overlay");
+const tArc = document.getElementById("t-arc");
+const tSecs = document.getElementById("t-secs");
+const tExEl = document.getElementById("t-ex");
+tArc.style.strokeDasharray = CIRCUM;
+let tIv=null, tRem=0, tTotal=0;
+
+function getRestSecs() {
+  const ph = PHASES[phaseIdx];
+  if(phaseIdx===2) return ph.restSeconds[PHASES[2].days[dayIdx].restIdx];
+  return ph.restSeconds[weekIdx];
+}
+function startTimer(name) {
+  if(tIv) clearInterval(tIv);
+  tTotal=getRestSecs(); tRem=tTotal;
+  tExEl.textContent = "Siguiente: " + name;
+  updateTimerUI();
+  tOverlay.classList.add("show");
+  if(navigator.vibrate) navigator.vibrate(150);
+  tIv = setInterval(()=>{
+    tRem--;
+    updateTimerUI();
+    if(tRem<=0){
+      clearInterval(tIv);
+      playBeep();
+      if(navigator.vibrate) navigator.vibrate([300,150,300,150,300]);
+      setTimeout(()=>tOverlay.classList.remove("show"),1000);
+    }
+  },1000);
+}
+function updateTimerUI() {
+  const c = PHASES[phaseIdx].color;
+  tSecs.textContent=tRem; tSecs.style.color=c;
+  tArc.style.stroke=c;
+  tArc.style.strokeDashoffset = CIRCUM*(1-tRem/tTotal);
+}
+function playBeep() {
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,.3,.6].forEach(t=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=880;
+      g.gain.setValueAtTime(.5,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+.22);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+.22);
+    });
+  }catch(e){}
+}
+document.getElementById("t-skip").onclick=()=>{clearInterval(tIv);tOverlay.classList.remove("show");};
+document.getElementById("t-stop").onclick=()=>{clearInterval(tIv);tOverlay.classList.remove("show");};
+
+// ── WORKOUT COMPLETE OVERLAY ──────────────────────────────────────────────────
+const wodOverlay = document.getElementById("wod-overlay");
+document.getElementById("wod-close").onclick = () => wodOverlay.classList.remove("show");
+
+function showWodComplete() {
+  if(wodShown) return;
+  wodShown = true;
+  const ph = PHASES[phaseIdx];
+  const day = ph.days[dayIdx];
+  document.getElementById("wod-close").style.background = ph.color;
+  document.getElementById("wod-close").style.color = "#000";
+  document.getElementById("wod-week").textContent = phaseIdx*4+weekIdx+1;
+  document.getElementById("wod-day").textContent = day.name;
+  setTimeout(()=>wodOverlay.classList.add("show"), 600);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getTotalSets(ei) {
+  return PHASES[phaseIdx].days[dayIdx].exercises[ei].sets[weekIdx] + getExtra(phaseIdx,weekIdx,dayIdx,ei);
+}
+function getReps(ex) {
+  const r=ex.reps[weekIdx]; return r==="AMRAP"?"Máx posible":r+" reps";
+}
+function curPhase() { return PHASES[phaseIdx]; }
+function curDay()   { return curPhase().days[dayIdx]; }
+function isBW(ex)   { return BODYWEIGHT.has(ex.name); }
+
+function calcProg() {
+  const day=curDay(); let total=0, done=0;
+  day.exercises.forEach((ex,ei)=>{
+    const s=getTotalSets(ei); total+=s;
+    for(let i=0;i<s;i++) if(isDone(ei,i)) done++;
+  });
+  return {total,done};
+}
+
+// ── CLEAR ─────────────────────────────────────────────────────────────────────
+document.getElementById("clear-day-btn").onclick = ()=>{
+  if(!confirm("¿Borrar todo el progreso de HOY?")) return;
+  const day=curDay();
+  day.exercises.forEach((ex,ei)=>{
+    const s=getTotalSets(ei);
+    for(let si=0;si<s;si++){
+      delete doneMap[dkey(phaseIdx,weekIdx,dayIdx,ei,si)];
+      if(logData[phaseIdx]?.[weekIdx]?.[dayIdx]?.[ei]) delete logData[phaseIdx][weekIdx][dayIdx][ei][si];
+    }
+    if(extraSets[phaseIdx]?.[weekIdx]?.[dayIdx]) delete extraSets[phaseIdx][weekIdx][dayIdx][ei];
+  });
+  if(notesData[phaseIdx]?.[weekIdx]) delete notesData[phaseIdx][weekIdx][dayIdx];
+  saveDone(); saveLog(); saveExtra(); saveNotes();
+  wodShown=false;
+  showToast("Día borrado ✓"); render();
+};
+document.getElementById("clear-all-btn").onclick = ()=>{
+  if(!confirm("¿Borrar TODO el historial completo?\n\nEsto eliminará todos los pesos, reps y progreso de las 12 semanas. No se puede deshacer.")) return;
+  doneMap={}; logData={}; extraSets={}; notesData={};
+  saveDone(); saveLog(); saveExtra(); saveNotes();
+  wodShown=false;
+  showToast("Historial borrado ✓"); render();
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const ph=curPhase(), day=curDay(), c=ph.color;
+
+  // Header colors
+  document.getElementById("hbar").style.background=c;
+  document.getElementById("phase-label").style.color=c;
+  document.getElementById("phase-label").textContent=ph.name;
+  document.getElementById("week-day-title").textContent=`Semana ${phaseIdx*4+weekIdx+1} · ${day.name}`;
+  document.getElementById("header").style.borderBottomColor=c;
+  document.getElementById("header").style.setProperty("--c",c);
+
+  // Phase tabs
+  document.querySelectorAll(".phase-tab").forEach((btn,i)=>{
+    btn.style.background=i===phaseIdx?PHASES[i].color:"rgba(128,128,128,.15)";
+    btn.style.color=i===phaseIdx?"#000":"var(--text4)";
+  });
+
+  // Week tabs
+  const wl=phaseIdx===0?["Sem 1","Sem 2","Sem 3","Sem 4"]:phaseIdx===1?["Sem 5","Sem 6","Sem 7","Sem 8"]:["Sem 9","Sem 10","Sem 11","Sem 12"];
+  document.querySelectorAll(".week-tab").forEach((btn,i)=>{
+    btn.textContent=wl[i];
+    btn.style.background=i===weekIdx?c+"33":"transparent";
+    btn.style.color=i===weekIdx?c:"var(--text4)";
+    btn.style.border=`1px solid ${i===weekIdx?c:"var(--border)"}`;
+  });
+
+  // Day tabs
+  const dtEl=document.getElementById("day-tabs"); dtEl.innerHTML="";
+  ph.days.forEach((d,i)=>{
+    const btn=document.createElement("button"); btn.className="day-tab";
+    btn.style.color=i===dayIdx?c:"var(--text4)";
+    btn.style.borderBottomColor=i===dayIdx?c:"transparent";
+    btn.textContent=d.name;
+    btn.onclick=()=>{dayIdx=i;openEx=-1;wodShown=false;render();};
+    dtEl.appendChild(btn);
+  });
+
+  // Day info
+  document.getElementById("day-focus").textContent=day.focus;
+  const rb=document.getElementById("rest-badge");
+  const rSecs=phaseIdx===2?PHASES[2].restSeconds[day.restIdx]:ph.restSeconds[weekIdx];
+  rb.textContent=`⏱ ${rSecs} seg descanso`;
+  rb.style.cssText=`background:${c}1a;border:1px solid ${c}44;color:${c};display:inline-block;margin-top:5px;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;`;
+
+  // Note
+  const noteEl=document.getElementById("day-note");
+  noteEl.value=getNote(phaseIdx,weekIdx,dayIdx);
+  noteEl.style.borderColor="var(--border)";
+  noteEl.oninput=()=>setNote(phaseIdx,weekIdx,dayIdx,noteEl.value);
+
+  // Progress
+  const {total,done}=calcProg();
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById("progress-label").textContent=`${done}/${total} series completadas`;
+  document.getElementById("progress-pct").textContent=pct+"%";
+  document.getElementById("progress-pct").style.color=c;
+  document.getElementById("progress-bar").style.width=pct+"%";
+  document.getElementById("progress-bar").style.background=c;
+  const cm=document.getElementById("completed-msg");
+  if(pct===100){
+    cm.style.cssText=`display:block;margin-top:10px;padding:10px;text-align:center;border-radius:8px;font-size:18px;letter-spacing:2px;background:${c}22;border:1px solid ${c};color:${c};`;
+    cm.textContent="🔥 ¡DÍA COMPLETADO! 🔥";
+    showWodComplete();
+  } else {
+    cm.style.display="none";
+    wodShown=false;
+  }
+
+  renderExercises();
+}
+
+function renderExercises() {
+  const day=curDay(), c=curPhase().color;
+  const container=document.getElementById("exercises"); container.innerHTML="";
+
+  day.exercises.forEach((ex,ei)=>{
+    const baseSets=ex.sets[weekIdx];
+    const extra=getExtra(phaseIdx,weekIdx,dayIdx,ei);
+    const totalS=baseSets+extra;
+    const r=getReps(ex), isOpen=openEx===ei, isSS=!!ex.ss, bw=isBW(ex);
+
+    const card=document.createElement("div"); card.className="ex-card";
+
+    // HEADER
+    const hdr=document.createElement("div");
+    hdr.className="ex-header"+(isSS?" ss":"")+(isOpen?" expanded":"");
+    hdr.style.borderLeftColor=isSS?c+"44":c;
+
+    // Name row
+    const nameRow=document.createElement("div"); nameRow.className="ex-name-row";
+    const left=document.createElement("div"); left.style.flex="1";
+    const nm=document.createElement("div"); nm.className="ex-name"; nm.textContent=ex.name;
+    const tb=document.createElement("span"); tb.className="type-badge";
+    if(bw){
+      tb.style.cssText="background:rgba(128,128,128,.15);color:var(--text3);font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px;vertical-align:middle;";
+      tb.textContent="REPS";
+    } else {
+      tb.style.cssText=`background:${c}22;color:${c};font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:5px;vertical-align:middle;`;
+      tb.textContent="LB";
+    }
+    nm.appendChild(tb); left.appendChild(nm);
+    if(isSS){const ss=document.createElement("div");ss.className="ex-ss-badge";ss.style.color=c;ss.textContent="⚡ SUPERSET";left.appendChild(ss);}
+    const meta=document.createElement("div"); meta.className="ex-meta";
+    meta.textContent=`${totalS} series · ${r}${extra>0?" (+"+ extra+" extra)":""}`;
+    left.appendChild(meta);
+    const arrow=document.createElement("div"); arrow.className="ex-arrow"; arrow.style.color=c;
+    arrow.textContent=isOpen?"▲":"▼";
+    arrow.addEventListener("click",e=>{e.stopPropagation();openEx=isOpen?-1:ei;render();});
+    nameRow.appendChild(left); nameRow.appendChild(arrow);
+    hdr.appendChild(nameRow);
+
+    // SETS AREA
+    const setsArea=document.createElement("div"); setsArea.className="sets-area";
+    for(let si=0;si<totalS;si++){
+      const setRow=document.createElement("div"); setRow.className="set-row";
+      const done=isDone(ei,si);
+      const isExtra=si>=baseSets;
+
+      const btn=document.createElement("button"); btn.className="set-btn";
+      btn.style.background=done?c:"rgba(128,128,128,.15)";
+      btn.style.color=done?"#000":"var(--text3)";
+      if(isExtra) btn.style.border=`1px dashed ${c}88`;
+      btn.textContent=done?"✓":"S"+(si+1);
+      btn.addEventListener("click",()=>{
+        const was=isDone(ei,si); setDone(ei,si,!was);
+        if(!was) startTimer(ex.name);
+        render();
+      });
+      setRow.appendChild(btn);
+
+      if(done){
+        const wrap=document.createElement("div"); wrap.className="set-input-wrap";
+        const inp=document.createElement("input"); inp.type="number"; inp.className="set-val-input";
+        inp.placeholder="0"; inp.style.borderColor=`${c}55`;
+        const saved=getLog(phaseIdx,weekIdx,dayIdx,ei,si);
+        if(saved) inp.value=saved;
+        inp.addEventListener("change",()=>setLog(phaseIdx,weekIdx,dayIdx,ei,si,inp.value.trim()));
+        inp.addEventListener("blur",()=>setLog(phaseIdx,weekIdx,dayIdx,ei,si,inp.value.trim()));
+        const unit=document.createElement("span"); unit.className="set-unit";
+        unit.textContent=bw?"reps":"lb";
+        wrap.appendChild(inp); wrap.appendChild(unit);
+
+        // PR badge — only for weighted exercises
+        if(!bw && inp.value && isPR(phaseIdx,weekIdx,dayIdx,ei,si)){
+          const pr=document.createElement("span"); pr.className="pr-badge";
+          pr.textContent="🏆"; pr.title="¡Nuevo récord personal!";
+          wrap.appendChild(pr);
+        }
+
+        // Remove btn — only for extra sets
+        if(isExtra){
+          const rb2=document.createElement("button"); rb2.className="remove-set-btn";
+          rb2.textContent="×";
+          rb2.addEventListener("click",()=>{
+            setDone(ei,si,false);
+            setLog(phaseIdx,weekIdx,dayIdx,ei,si,"");
+            setExtra(phaseIdx,weekIdx,dayIdx,ei,Math.max(0,extra-1));
+            render();
+          });
+          wrap.appendChild(rb2);
+        }
+        setRow.appendChild(wrap);
+      }
+      setsArea.appendChild(setRow);
+    }
+
+    // ADD SET button
+    const addBtn=document.createElement("button"); addBtn.className="add-set-btn";
+    addBtn.innerHTML=`<span style="font-size:16px;line-height:1;margin-right:2px">+</span> Serie extra`;
+    addBtn.addEventListener("click",()=>{
+      setExtra(phaseIdx,weekIdx,dayIdx,ei,extra+1);
+      showToast("Serie extra agregada");
+      render();
+    });
+    setsArea.appendChild(addBtn);
+    hdr.appendChild(setsArea);
+    card.appendChild(hdr);
+
+    // BODY — history + YouTube
+    if(isOpen){
+      const body=document.createElement("div"); body.className="ex-body open";
+      const ht=document.createElement("div"); ht.className="hist-title";
+      ht.textContent=bw?"📈 Historial de Reps":"📈 Historial de Peso";
+      body.appendChild(ht);
+
+      const hg=document.createElement("div"); hg.className="history-grid";
+      const wl2=phaseIdx===0?["Sem 1","Sem 2","Sem 3","Sem 4"]:phaseIdx===1?["Sem 5","Sem 6","Sem 7","Sem 8"]:["Sem 9","Sem 10","Sem 11","Sem 12"];
+      for(let w=0;w<4;w++){
+        const numS=ex.sets[w]+getExtra(phaseIdx,w,dayIdx,ei);
+        const vals=[]; for(let si=0;si<numS;si++) vals.push(getLog(phaseIdx,w,dayIdx,ei,si));
+        const hasAny=vals.some(v=>v);
+        const cell=document.createElement("div"); cell.className="hist-cell";
+        if(w===weekIdx) cell.style.border=`1px solid ${c}66`;
+        const wkl=document.createElement("div"); wkl.className="hist-wk"; wkl.textContent=wl2[w];
+        const val=document.createElement("div"); val.className="hist-val "+(hasAny?"has":"none");
+        if(w===weekIdx&&hasAny) val.style.color=c;
+        if(hasAny){
+          const u=bw?"r":"lb";
+          val.innerHTML=vals.map((v,i)=>`<div>S${i+1}:${v||"—"}${v?u:""}</div>`).join("");
+        } else {
+          val.textContent="—";
+        }
+        let arrowHTML="";
+        if(w>0){
+          const cur=getWeekStat(phaseIdx,w,dayIdx,ei,numS,bw);
+          const prev=getWeekStat(phaseIdx,w-1,dayIdx,ei,ex.sets[w-1]+getExtra(phaseIdx,w-1,dayIdx,ei),bw);
+          if(cur!==null&&prev!==null){
+            const diff=cur-prev; const lbl=bw?"rep":"lb";
+            if(diff>0) arrowHTML=`<div class="hist-arrow" style="color:#4cff91">▲ +${Math.abs(diff).toFixed(0)}${lbl}</div>`;
+            else if(diff<0) arrowHTML=`<div class="hist-arrow" style="color:#ff6060">▼ ${Math.abs(diff).toFixed(0)}${lbl}</div>`;
+            else arrowHTML=`<div class="hist-arrow" style="color:var(--text3)">= igual</div>`;
+          }
+        }
+        cell.appendChild(wkl); cell.appendChild(val);
+        if(arrowHTML) cell.innerHTML+=arrowHTML;
+        hg.appendChild(cell);
+      }
+      body.appendChild(hg);
+      const div=document.createElement("div"); div.className="divider"; body.appendChild(div);
+      const ytBtn=document.createElement("a"); ytBtn.className="yt-btn";
+      ytBtn.href=`https://www.youtube.com/results?search_query=${ex.ytq}`;
+      ytBtn.target="_blank"; ytBtn.rel="noopener noreferrer";
+      ytBtn.innerHTML="▶ Ver tutorial en YouTube"; body.appendChild(ytBtn);
+      const hint=document.createElement("div"); hint.className="yt-hint";
+      hint.textContent='Busca "proper form" para aprender la técnica correcta.';
+      body.appendChild(hint);
+      card.appendChild(body);
+    }
+    container.appendChild(card);
+  });
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".phase-tab").forEach(btn=>btn.addEventListener("click",()=>{
+  phaseIdx=+btn.dataset.phase; weekIdx=0; dayIdx=0; openEx=-1; wodShown=false; render();
+}));
+document.querySelectorAll(".week-tab").forEach(btn=>btn.addEventListener("click",()=>{
+  weekIdx=+btn.dataset.week; openEx=-1; wodShown=false; render();
+}));
+
+render();
+</script>
+</body>
+</html>
